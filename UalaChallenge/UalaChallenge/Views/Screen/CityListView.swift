@@ -16,8 +16,15 @@ struct CityListView: View {
                 SearchBarView(text: $viewModel.searchText)
                 Toggle("Favorites Only", isOn: $viewModel.showFavoritesOnly)
                     .padding()
-                List(viewModel.filteredCities, id: \.self) { city in
-                    CityRow(city: city)
+                
+                ScrollView {
+                    LazyVStack(alignment: .leading) {
+                        ForEach(viewModel.cities, id: \.self) { city in
+                            CityRow(city: city)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                        }
+                    }
                 }
             }
             .navigationTitle("Cities")
