@@ -12,61 +12,77 @@ class CityViewModel: ObservableObject {
     var cities: [City] = []
     @Published var searchText: String = ""
     @Published var showFavoritesOnly: Bool = false
-    @Published var isLoading = false
-    
+    @Published private(set) var filteredCities: [City] = []
+    @Published var isLoading: Bool = false
+
     let cityService: CityService
     private var cancellables = Set<AnyCancellable>()
-    
-    @Published private(set) var filteredCities: [City] = []
-    
+    private let favoritesKey = "favoriteCities"
+
     init(cityService: CityService = CityService()) {
         self.cityService = cityService
         setupBindings()
     }
-    
+
     private func setupBindings() {
-        // For using the debounce capability
         $searchText
             .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.updateFilterCities()
             }
             .store(in: &cancellables)
-        
     }
-    
+
     @MainActor
     func fetchCities() {
+        isLoading = true
         Task {
-            isLoading = true
             self.cityService.fetchCities { [weak self] cities in
-                self?.isLoading = false
                 self?.cities = cities
+                self?.loadFavorites()
                 self?.filteredCities = self?.filterCities() ?? []
+                self?.isLoading = false
             }
         }
     }
-    
+
     func updateFilterCities() {
         filteredCities = filterCities()
     }
-    
+
     private func filterCities() -> [City] {
         cities.filter {
             $0.name.lowercased().hasPrefix(searchText.lowercased()) &&
-            (!showFavoritesOnly || ($0.isFavorite))
+            (!showFavoritesOnly || $0.isFavorite)
         }.sorted { $0.name < $1.name }
     }
-    
+
     func toggleFavorite(for city: City) {
         if let index = cities.firstIndex(where: { $0.id == city.id }) {
             cities[index].isFavorite.toggle()
         }
-        
+
         if let index = filteredCities.firstIndex(where: { $0.id == city.id }) {
             filteredCities[index].isFavorite.toggle()
         }
-        
+
         filteredCities = filterCities()
+        saveFavorites()
     }
+
+    private func saveFavorites() {
+        let favoriteIDs = cities.filter { $0.isFavorite }.map { $0._id }
+        UserDefaults.standard.set(favoriteIDs, forKey: favoritesKey)
+    }
+
+    private func loadFavorites() {
+        let favoriteIDs = UserDefaults.standard.array(forKey: favoritesKey) as? [Int] ?? []
+        for id in favoriteIDs {
+            if let index = cities.firstIndex(where: { $0._id == id }) {
+                cities[index].isFavorite = true
+            }
+        }
+    }
+
 }
+
