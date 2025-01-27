@@ -58,11 +58,11 @@ class CityViewModel: ObservableObject {
     }
 
     func toggleFavorite(for city: City) {
-        if let index = cities.firstIndex(where: { $0.id == city.id }) {
+        if let index = cities.firstIndex(where: { $0._id == city._id }) {
             cities[index].isFavorite.toggle()
         }
 
-        if let index = filteredCities.firstIndex(where: { $0.id == city.id }) {
+        if let index = filteredCities.firstIndex(where: { $0._id == city._id }) {
             filteredCities[index].isFavorite.toggle()
         }
 

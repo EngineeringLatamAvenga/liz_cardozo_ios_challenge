@@ -13,7 +13,7 @@ struct City: Identifiable, Codable, Hashable {
     let name: String
     let country: String
     let coord: Coordinates
-    var isFavorite: Bool = false // Valor predeterminado
+    var isFavorite: Bool = false
 
     struct Coordinates: Codable, Hashable {
         let lon: Double
@@ -31,5 +31,14 @@ struct City: Identifiable, Codable, Hashable {
         self.country = try container.decode(String.self, forKey: .country)
         self.coord = try container.decode(Coordinates.self, forKey: .coord)
         self.isFavorite = try container.decodeIfPresent(Bool.self, forKey: .isFavorite) ?? false
+    }
+
+    init(id: UUID? = UUID(), _id: Int, name: String, country: String, coord: Coordinates, isFavorite: Bool = false) {
+        self.id = id
+        self._id = _id
+        self.name = name
+        self.country = country
+        self.coord = coord
+        self.isFavorite = isFavorite
     }
 }
