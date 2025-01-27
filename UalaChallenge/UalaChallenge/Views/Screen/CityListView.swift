@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CityListView: View {
     @ObservedObject var viewModel: CityViewModel
-
+    
     var body: some View {
         NavigationStack {
             VStack {
@@ -19,17 +19,36 @@ struct CityListView: View {
                 
                 ScrollView {
                     LazyVStack(alignment: .leading) {
-                        ForEach(viewModel.cities, id: \.self) { city in
-                            CityRow(city: city)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
+                        ForEach(viewModel.filteredCities, id: \.id) { city in
+                            CityRow(city: city, onFavoriteToggle: {
+                                viewModel.toggleFavorite(for: city)
+                            })
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                         }
                     }
                 }
             }
+            .overlay(content: {
+                if viewModel.isLoading {
+                    ZStack {
+                        Color.black.opacity(0.4)
+                            .edgesIgnoringSafeArea(.all)
+                        ProgressView("Loading cities...")
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 10)
+                    }
+                    .transition(.opacity) // Transición animada
+                }
+            })
             .navigationTitle("Cities")
             .onAppear {
                 viewModel.fetchCities()
+            }
+            .onChange(of: viewModel.showFavoritesOnly) { oldValue, newValue in
+                viewModel.updateFilterCities()
             }
         }
     }
@@ -37,14 +56,23 @@ struct CityListView: View {
 
 struct CityRow: View {
     let city: City
-    
+    var onFavoriteToggle: () -> Void
+
     var body: some View {
-        VStack(alignment: .leading) {
-            Text("\(city.name), \(city.country)")
-                .font(.headline)
-            Text("Lon: \(city.coord.lon), Lat: \(city.coord.lat)")
-                .font(.subheadline)
+        HStack {
+            VStack(alignment: .leading) {
+                Text("\(city.name), \(city.country)")
+                    .font(.headline)
+                Text("Lon: \(city.coord.lon), Lat: \(city.coord.lat)")
+                    .font(.subheadline)
+            }
+            Spacer()
+            Button(action: onFavoriteToggle) {
+                Image(systemName: city.isFavorite == true ? "star.fill" : "star")
+                    .foregroundColor(city.isFavorite == true ? .yellow : .gray)
+            }
         }
+        .padding(.vertical, 4)
     }
 }
 
