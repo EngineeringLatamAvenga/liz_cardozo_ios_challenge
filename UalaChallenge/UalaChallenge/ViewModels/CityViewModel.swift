@@ -14,7 +14,8 @@ class CityViewModel: ObservableObject {
     @Published var showFavoritesOnly: Bool = false
     @Published private(set) var filteredCities: [City] = []
     @Published var isLoading: Bool = false
-
+    @Published var selectedCity: City?
+    
     var cityService: CityServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private let favoritesKey = "favoriteCities"

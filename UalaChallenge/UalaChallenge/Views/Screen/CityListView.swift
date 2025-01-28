@@ -10,7 +10,6 @@ import SwiftUI
 struct CityListView: View {
     @ObservedObject var viewModel: CityViewModel
     @State var path: [Screen] = []
-    @State private var selectedCity: City?
     
     enum Screen: Hashable {
         case detailView(city: City)
@@ -61,14 +60,14 @@ struct CityListView: View {
             VStack {
                 commonFilters
                 cityList { city in
-                    selectedCity = city
+                    viewModel.selectedCity = city
                 }
             }
             .frame(maxWidth: .infinity)
             
             Divider()
             
-            if let city = selectedCity {
+            if let city = viewModel.selectedCity {
                 CityDetailView(viewModel: CityDetailViewModel(city: city))
                     .frame(maxWidth: .infinity)
             } else {
@@ -105,7 +104,6 @@ struct CityListView: View {
         }
     }
 }
-
 
 #Preview {
     CityListView(viewModel: CityViewModel(cityService: CityService()))

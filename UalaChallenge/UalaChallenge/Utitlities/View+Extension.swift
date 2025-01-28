@@ -15,11 +15,8 @@ extension View {
                     ZStack {
                         Color.black.opacity(0.4)
                             .edgesIgnoringSafeArea(.all)
-                        ProgressView("Loading cities...")
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            .shadow(radius: 10)
+                        ProgressView()
+                          
                     }
                     .transition(.opacity)
                 }
