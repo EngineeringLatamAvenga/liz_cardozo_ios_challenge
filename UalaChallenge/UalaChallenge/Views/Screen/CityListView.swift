@@ -84,6 +84,7 @@ struct CityListView: View {
             SearchBarView(text: $viewModel.searchText)
             Toggle("Favorites Only", isOn: $viewModel.showFavoritesOnly)
                 .padding()
+                .accessibilityIdentifier("FavoritesToggle")
         }
     }
     
@@ -149,5 +150,5 @@ extension View {
 }
 
 #Preview {
-    CityListView(viewModel: CityViewModel())
+    CityListView(viewModel: CityViewModel(cityService: CityService()))
 }

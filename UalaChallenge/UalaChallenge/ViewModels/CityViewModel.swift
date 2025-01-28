@@ -15,11 +15,11 @@ class CityViewModel: ObservableObject {
     @Published private(set) var filteredCities: [City] = []
     @Published var isLoading: Bool = false
 
-    let cityService: CityService
+    var cityService: CityServiceProtocol
     private var cancellables = Set<AnyCancellable>()
     private let favoritesKey = "favoriteCities"
 
-    init(cityService: CityService = CityService()) {
+    init(cityService: CityServiceProtocol) {
         self.cityService = cityService
         setupBindings()
     }

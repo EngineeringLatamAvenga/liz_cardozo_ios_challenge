@@ -8,29 +8,93 @@
 import XCTest
 @testable import UalaChallenge
 
-final class UalaChallengeTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+final class CityViewModelTests: XCTestCase {
+    var viewModel: CityViewModel!
+    var mockCityService: MockCityService!
+    
+    override func setUp() {
+        super.setUp()
+        mockCityService = MockCityService()
+        viewModel = CityViewModel(cityService: mockCityService)
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+    
+    override func tearDown() {
+        viewModel = nil
+        mockCityService = nil
+        super.tearDown()
     }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    
+    @MainActor
+    func testFetchCities() {
+        // Arrange
+        let expectation = XCTestExpectation(description: "Fetch cities from mock service")
+        
+        // Act
+        viewModel.fetchCities()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Assert
+            XCTAssertEqual(self.viewModel.cities.count, 3)
+            XCTAssertEqual(self.viewModel.cities[0].name, "Mockville")
+            expectation.fulfill()
         }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+
+    
+    @MainActor
+    func testFilterCitiesBySearchText() {
+        // Arrange
+        let expectation = XCTestExpectation(description: "Fetch cities and filter by search text")
+        viewModel.fetchCities()
+
+        // Act
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.viewModel.searchText = "Mock"
+            self.viewModel.updateFilterCities()
+            
+            // Assert
+            XCTAssertEqual(self.viewModel.filteredCities.count, 1)
+            XCTAssertEqual(self.viewModel.filteredCities[0].name, "Mockville")
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+
+    
+    @MainActor
+    func testFilterCitiesByFavoritesOnly() {
+        // Arrange
+        let expectation = XCTestExpectation(description: "Fetch cities and filter by favorites only")
+        viewModel.fetchCities()
+        
+        // Act
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.viewModel.cities[0].isFavorite = true
+            self.viewModel.showFavoritesOnly = true
+            self.viewModel.updateFilterCities()
+            
+            // Assert
+            XCTAssertEqual(self.viewModel.filteredCities.count, 1)
+            XCTAssertTrue(self.viewModel.filteredCities[0].isFavorite)
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+}
+
+class MockCityService: CityServiceProtocol {
+    func fetchCities(completion: @escaping ([City]) -> Void) {
+        print("Using MockCityService") // Log para confirmar el mock
+        let mockCities = [
+            City(_id: 1, name: "Mockville", country: "MV", coord: City.Coordinates(lon: 10, lat: 20)),
+            City(_id: 2, name: "Example City", country: "EX", coord: City.Coordinates(lon: 30, lat: 40)),
+            City(_id: 3, name: "Testopolis", country: "TP", coord: City.Coordinates(lon: 50, lat: 60))
+        ]
+        completion(mockCities)
     }
 
 }
