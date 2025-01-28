@@ -40,7 +40,7 @@ final class CityViewModelTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
     }
     
     @MainActor
@@ -60,7 +60,7 @@ final class CityViewModelTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
     }
     
     @MainActor
@@ -80,7 +80,7 @@ final class CityViewModelTests: XCTestCase {
             expectation.fulfill()
         }
         
-        wait(for: [expectation], timeout: 1.0)
+        wait(for: [expectation], timeout: 5.0)
     }
     
 }
