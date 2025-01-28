@@ -126,7 +126,7 @@ The project follows the MVVM (Model-View-ViewModel) architecture to ensure clean
 ## **Future Improvements**
 
 1. **Error Handling:**
-   - Display user-friendly error messages for API/network failures.
+   - Display user-friendly error messages for API/network failures instead of console prints.
 
 2. **Offline Mode:**
    - Cache city data locally to enable offline functionality.
