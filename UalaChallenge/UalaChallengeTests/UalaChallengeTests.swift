@@ -27,7 +27,7 @@ final class CityViewModelTests: XCTestCase {
     @MainActor
     func testFetchCities() {
         // Arrange
-        let expectation = XCTestExpectation(description: "Fetch cities from mock service")
+        let expectation = XCTestExpectation(description: "Fetch cities successfully")
         
         // Act
         viewModel.fetchCities()
@@ -35,22 +35,22 @@ final class CityViewModelTests: XCTestCase {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             // Assert
             XCTAssertEqual(self.viewModel.cities.count, 3)
+            XCTAssertEqual(self.viewModel.filteredCities.count, 3)
             XCTAssertEqual(self.viewModel.cities[0].name, "Mockville")
             expectation.fulfill()
         }
         
         wait(for: [expectation], timeout: 1.0)
     }
-
     
     @MainActor
     func testFilterCitiesBySearchText() {
         // Arrange
-        let expectation = XCTestExpectation(description: "Fetch cities and filter by search text")
         viewModel.fetchCities()
-
-        // Act
+        let expectation = XCTestExpectation(description: "Filter cities by search text")
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            // Act
             self.viewModel.searchText = "Mock"
             self.viewModel.updateFilterCities()
             
@@ -62,17 +62,15 @@ final class CityViewModelTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
     }
-
     
     @MainActor
     func testFilterCitiesByFavoritesOnly() {
         // Arrange
-        let expectation = XCTestExpectation(description: "Fetch cities and filter by favorites only")
         viewModel.fetchCities()
+        let expectation = XCTestExpectation(description: "Filter cities by favorites")
         
-        // Act
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.viewModel.cities[0].isFavorite = true
+            // Act
             self.viewModel.showFavoritesOnly = true
             self.viewModel.updateFilterCities()
             
@@ -84,17 +82,17 @@ final class CityViewModelTests: XCTestCase {
         
         wait(for: [expectation], timeout: 1.0)
     }
+    
 }
 
-class MockCityService: CityServiceProtocol {
-    func fetchCities(completion: @escaping ([City]) -> Void) {
-        print("Using MockCityService") // Log para confirmar el mock
-        let mockCities = [
-            City(_id: 1, name: "Mockville", country: "MV", coord: City.Coordinates(lon: 10, lat: 20)),
-            City(_id: 2, name: "Example City", country: "EX", coord: City.Coordinates(lon: 30, lat: 40)),
-            City(_id: 3, name: "Testopolis", country: "TP", coord: City.Coordinates(lon: 50, lat: 60))
-        ]
-        completion(mockCities)
-    }
 
+class MockCityService: CityServiceProtocol {
+    func fetchCities(completion: @escaping (Result<[City], CityServiceError>) -> Void) {
+        let mockCities = [
+            City(_id: 1, name: "Mockville", country: "MV", coord: City.Coordinates(lon: 10, lat: 20), isFavorite: false),
+            City(_id: 2, name: "Example City", country: "EX", coord: City.Coordinates(lon: 30, lat: 40), isFavorite: false),
+            City(_id: 3, name: "Testopolis", country: "TP", coord: City.Coordinates(lon: 50, lat: 60), isFavorite: true)
+        ]
+        completion(.success(mockCities))
+    }
 }
