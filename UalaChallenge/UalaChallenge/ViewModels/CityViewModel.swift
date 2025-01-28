@@ -37,14 +37,21 @@ class CityViewModel: ObservableObject {
     func fetchCities() {
         isLoading = true
         Task {
-            self.cityService.fetchCities { [weak self] cities in
-                self?.cities = cities
-                self?.loadFavorites()
-                self?.filteredCities = self?.filterCities() ?? []
+            self.cityService.fetchCities { [weak self] result in
+                switch result {
+                case .success(let cities):
+                    print("Successfully fetched \(cities.count) cities.")
+                    self?.cities = cities
+                    self?.loadFavorites()
+                    self?.filteredCities = self?.filterCities() ?? []
+                case .failure(let error):
+                    print("Failed to fetch cities: \(error)")
+                }
                 self?.isLoading = false
             }
         }
     }
+
 
     func updateFilterCities() {
         filteredCities = filterCities()

@@ -106,48 +106,6 @@ struct CityListView: View {
     }
 }
 
-struct CityRow: View {
-    let city: City
-    var onFavoriteToggle: () -> Void
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text("\(city.name), \(city.country)")
-                    .font(.headline)
-                Text("Lon: \(city.coord.lon), Lat: \(city.coord.lat)")
-                    .font(.subheadline)
-            }
-            Spacer()
-            Button(action: onFavoriteToggle) {
-                Image(systemName: city.isFavorite == true ? "star.fill" : "star")
-                    .foregroundColor(city.isFavorite == true ? .yellow : .gray)
-            }
-        }
-        .padding(.vertical, 4)
-    }
-}
-
-extension View {
-    func commonOverlay(isLoading: Bool) -> some View {
-        self.overlay(
-            Group {
-                if isLoading {
-                    ZStack {
-                        Color.black.opacity(0.4)
-                            .edgesIgnoringSafeArea(.all)
-                        ProgressView("Loading cities...")
-                            .padding()
-                            .background(Color.white)
-                            .cornerRadius(10)
-                            .shadow(radius: 10)
-                    }
-                    .transition(.opacity)
-                }
-            }
-        )
-    }
-}
 
 #Preview {
     CityListView(viewModel: CityViewModel(cityService: CityService()))
